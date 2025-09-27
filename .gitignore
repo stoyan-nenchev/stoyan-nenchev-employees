@@ -1,3 +1,4 @@
+### Java Spring ###
 HELP.md
 .gradle
 build/
@@ -35,3 +36,44 @@ out/
 
 ### VS Code ###
 .vscode/
+
+## Next.js ###
+# dependencies
+csv-web-app/node_modules
+csv-web-app/.pnp
+csv-web-app/.pnp.*
+csv-web-app/.yarn/*
+!csv-web-app/.yarn/patches
+!csv-web-app/.yarn/plugins
+!csv-web-app/.yarn/releases
+!csv-web-app/.yarn/versions
+
+# testing
+csv-web-app/coverage
+
+# next.js
+csv-web-app/.next/
+csv-web-app/out/
+
+# production
+csv-web-app/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+csv-web-app/npm-debug.log*
+csv-web-app/yarn-debug.log*
+csv-web-app/yarn-error.log*
+csv-web-app/.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+csv-web-app/.env*
+
+# vercel
+csv-web-app/.vercel
+
+# typescript
+csv-web-app/*.tsbuildinfo
+csv-web-app/next-env.d.ts
