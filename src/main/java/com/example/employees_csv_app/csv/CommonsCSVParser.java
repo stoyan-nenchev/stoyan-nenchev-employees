@@ -12,8 +12,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class CommonsCSVParser implements CSVParser<CSVEmployeeRowDTO> {
@@ -24,16 +24,17 @@ public class CommonsCSVParser implements CSVParser<CSVEmployeeRowDTO> {
 
         try {
             Reader reader = new InputStreamReader(inputStream);
-            Iterable<CSVRecord> parsedRecords = CSVFormat.DEFAULT.builder()
-                    .setHeader(EmployeeCSVHeader.class)
+            CSVFormat format  = CSVFormat.DEFAULT.builder()
+                    .setHeader()
                     .setSkipHeaderRecord(true)
-                    .setIgnoreHeaderCase(true)
                     .setTrim(true)
                     .setNullString("NULL")
-                    .get()
-                    .parse(reader);
+                    .get();
 
-            for (CSVRecord parsedRecord : parsedRecords) {
+            org.apache.commons.csv.CSVParser parser = format.parse(reader);
+            validateHeader(parser.getHeaderMap());
+
+            for (CSVRecord parsedRecord : parser) {
                 CSVEmployeeRowDTO employeeRow = CSVEmployeeRowDTO.builder()
                         .employeeId(parseInteger(parsedRecord.get(EmployeeCSVHeader.EmpID)))
                         .projectId(parseInteger(parsedRecord.get(EmployeeCSVHeader.ProjectID)))
@@ -49,6 +50,20 @@ public class CommonsCSVParser implements CSVParser<CSVEmployeeRowDTO> {
         }
 
         return employees;
+    }
+
+    private void validateHeader(Map<String, Integer> headerMap) {
+        Set<String> requiredHeaders = Arrays.stream(EmployeeCSVHeader.values())
+                .map(EmployeeCSVHeader::name)
+                .collect(Collectors.toSet());
+
+        Set<String> actualHeaders = new HashSet<>(headerMap.keySet());
+
+        if (!actualHeaders.containsAll(requiredHeaders)) {
+            Set<String> missing = new HashSet<>(requiredHeaders);
+            missing.removeAll(actualHeaders);
+            throw new IllegalArgumentException(String.format("Missing required headers %s", missing));
+        }
     }
 
     private Integer parseInteger(String value) {
