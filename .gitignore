@@ -40,6 +40,7 @@ out/
 ## Next.js ###
 # dependencies
 csv-web-app/node_modules
+csv-web-app/.idea
 csv-web-app/.pnp
 csv-web-app/.pnp.*
 csv-web-app/.yarn/*
