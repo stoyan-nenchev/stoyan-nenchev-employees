@@ -4,15 +4,24 @@ import com.example.employees_csv_app.dto.CSVEmployeeRowDTO;
 import com.example.employees_csv_app.enums.EmployeeCSVHeader;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -24,7 +33,7 @@ public class CommonsCSVParser implements CSVParser<CSVEmployeeRowDTO> {
 
         try {
             Reader reader = new InputStreamReader(inputStream);
-            CSVFormat format  = CSVFormat.DEFAULT.builder()
+            CSVFormat format = CSVFormat.DEFAULT.builder()
                     .setHeader()
                     .setSkipHeaderRecord(true)
                     .setTrim(true)
@@ -67,7 +76,7 @@ public class CommonsCSVParser implements CSVParser<CSVEmployeeRowDTO> {
     }
 
     private Integer parseInteger(String value) {
-        if (value == null || value.trim().isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             throw new IllegalArgumentException(String.format("Invalid integer value %s", value));
         }
 
@@ -79,7 +88,7 @@ public class CommonsCSVParser implements CSVParser<CSVEmployeeRowDTO> {
     }
 
     private LocalDate parseDate(String value, boolean allowNullDate) {
-        if (value == null || value.trim().isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             if (allowNullDate) {
                 return LocalDate.now();
             } else {
@@ -87,9 +96,30 @@ public class CommonsCSVParser implements CSVParser<CSVEmployeeRowDTO> {
             }
         }
 
+        String[] patterns = {
+                "yyyy-MM-dd",
+                "MM/dd/yyyy",
+                "dd/MM/yyyy",
+                "yyyy/MM/dd",
+                "dd-MM-yyyy",
+                "MM-dd-yyyy",
+                "dd.MM.yyyy",
+                "MM.dd.yyyy",
+                "yyyyMMdd",
+                "dd MMM yyyy",
+                "MMM dd, yyyy",
+                "dd MMMM yyyy",
+                "MMMM dd, yyyy",
+                "yyyy-MM-dd HH:mm:ss",
+                "MM/dd/yy",
+                "dd/MM/yy",
+                "yy-MM-dd"
+        };
+
         try {
-            return LocalDate.parse(value);
-        } catch (DateTimeParseException dateTimeParseException) {
+            Date parseDate = DateUtils.parseDate(value, patterns);
+            return parseDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        } catch (ParseException e) {
             throw new IllegalArgumentException(String.format("Invalid or not supported date value %s", value));
         }
     }

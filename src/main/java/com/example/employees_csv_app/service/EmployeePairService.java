@@ -2,6 +2,7 @@ package com.example.employees_csv_app.service;
 
 import com.example.employees_csv_app.dto.CSVEmployeeRowDTO;
 import com.example.employees_csv_app.dto.EmployeePairDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -55,7 +56,7 @@ public class EmployeePairService {
                 .map(Map.Entry::getKey)
                 .orElse(null);
 
-        if (maxPair == null) {
+        if (StringUtils.isEmpty(maxPair)) {
             return Collections.emptyList();
         }
 
